@@ -1,0 +1,125 @@
+#main {
+	padding-top: 50px;
+}
+
+.led-box {
+    height: 50px;
+    width: 100%;
+}
+.led-box p {
+  font-size: 12px;
+  text-align: center;
+  margin: 1em;
+}
+.led {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+}
+.led-off {
+	background-color: #666 !important;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #000 0 -1px 9px, rgba(0, 0, 0, 0.5) 0 2px 12px !important;
+}
+.led-red {
+  background-color: #F00;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+}
+
+.led-green {
+  background-color: #ABFF00;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+}
+
+.led-yellow {
+  background-color: #FF0;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 12px;
+}
+
+.led span {
+  color: white;
+  font-weight: 700;
+  position: absolute;
+  line-height: 20;
+}
+
+
+
+#cy, #map {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: #ddd;
+  top: 0;
+}
+
+.cursor .gm-style > div:first-child {
+  cursor: url("/public/image/unsaved.png") 32 64, default !important;
+}
+.modal-content, .btn-flat {
+  border-radius: 0 !important;
+}
+
+.table-user-information > tbody > tr {
+    border-top: 1px solid rgb(221, 221, 221);
+}
+
+.table-user-information > tbody > tr:first-child {
+    border-top: 0;
+}
+
+
+.table-user-information > tbody > tr > td {
+    border-top: 0;
+}
+
+div[class^='col-'] {
+  height: calc(100% - 50px);
+}
+.col-3 {
+  width: 25%;
+  float: left;
+  position: absolute;
+  overflow-y: auto;
+}
+.col-9 {
+  width: 75%;
+  left: 25%;
+  position: absolute;
+}
+
+.status {
+  padding: 4px;
+}
+
+.status span:before {
+  display: block;
+  content: ' ';
+  border-radius: 50%;
+  border: 3px solid #000;
+  padding: 20px;
+  background-color: blue;
+  width: 10px;
+  margin: auto;
+
+}
+
+.red span:before {
+  background-color: red;
+}
+
+.yellow span:before {
+  background-color: yellow;
+}
+
+.green span:before {
+  background-color: lime;
+}
+.nav li:hover {
+  cursor: pointer;
+}
+.add-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10000;
+}

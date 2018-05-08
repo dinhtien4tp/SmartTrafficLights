@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="node">
+	<body ng-controller="main-controller" style="padding: 0; margin: 0; width: 290px; height: 300px; overflow: hidden;">
+		<style type="text/css">
+			@font-face {
+			    font-family: '7LED';
+			    src: url(/public/font/Segment7Standard.otf);
+			}
+			.crop {
+		        width: 96px;
+			    height: 226px;
+			    overflow: hidden;
+			    position: absolute;
+			    top: 4px;
+			}
+			.crop img {
+			    width: 400px;
+			    height: 300px;
+			    margin: -22px 0 0 -28px;
+			}
+			.digit {
+			    margin: 0px;
+			    line-height: 100px;
+			    font-size: 100px;
+			    font-family: '7LED';
+			    text-align: center;
+			    background-color: #000;
+			    height: 82px;
+			}
+			.red {
+			    color: red;
+			}
+			.red img {
+				margin-left: -272px;
+			}
+			.yellow {
+			    color: yellow;
+			}
+			.yellow img {
+			    margin-left: -150px;
+			}
+			.green {
+			    color: lime;
+			}
+			.green img {
+				margin-left: -28px;
+			}
+			.table-scroll {
+				width: 100%;
+			}
+			.table-scroll table {
+				width: 1000px;
+				height: 100%;
+			}
+		</style>
+	    <div style="width: 290px; height: 228px; padding: 4px; background-color: #ddd" ng-class="{'green': color == 1, 'yellow': color == 2, 'red': color == 0}">
+	    	<div class="crop">
+	        	<img src="/public/image/traffic-lights.jpg">
+	        </div>
+	    	<div style="float: right;width: 182px;margin: 0 auto;height: 226px;background-color: #eee;top: 4px;position: absolute;left: 112px;">
+	    		<p class="digit">{{ time }}</p>
+	    		<div class="table-scroll">
+		    		<table style="color: #666; padding: 0 10px">
+		    			<hr>
+		    			<tbody class="table-user-information">
+		    				<tr>
+		    					<td><input type="text" name="_id" ng-model="node._id" style="width: 160px;"></td>
+		    					
+		    				</tr>
+			    			<tr>
+			    				<td><button ng-click="connect()">{{ btn_status }}</button></td>
+			    			</tr>
+			    			<!-- <tr>
+			    				<td style="width: 100px;">CODE: </td>
+			    				<td><strong>{{ node.code }}</strong></td>
+			    			</tr>
+			    			<tr>
+			    				<td style="width: 100px;">CAPACITY: </td>
+			    				<td><strong>{{ node.capacity }}</strong></td>
+			    			</tr>
+			    			<tr>
+			    				<td style="width: 100px;">ADDRESS: </td>
+			    				<td><strong>{{ node.address }}</strong></td>
+			    			</tr> -->
+		    			</tbody>
+		    		</table>
+	    		</div>
+	    	</div>
+	    </div>
+	    <script src="/node_modules/angular/angular.js"></script>
+		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	    <script src="/public/js/node.js"></script>
+	</body>
+</html>

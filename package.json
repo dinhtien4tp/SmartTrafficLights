@@ -1,0 +1,46 @@
+{
+  "name": "smart-traffic-light",
+  "version": "1.0.0",
+  "description": "He thong tin hieu giao thong thong minh",
+  "main": "server.js",
+  "dependencies": {
+    "angular": "^1.6.3",
+    "angular-animate": "^1.6.4",
+    "angular-toastr": "^2.1.1",
+    "angular-ui-router": "^0.4.2",
+    "bootstrap": "^3.3.7",
+    "express": "^4.15.2",
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4",
+    "mongodb": "^2.2.25",
+    "mongoskin": "^2.1.0",
+    "optimist": "^0.6.1",
+    "q": "^1.5.0",
+    "socket.io": "1.5.0",
+    "websocket.io": "latest"
+  },
+  "devDependencies": {
+    "file-loader": "^0.10.1",
+    "webpack-dev-server": "^1.8.0"
+  },
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://huutho321@gitlab.com/huutho321/STL-Project.git"
+  },
+  "keywords": [
+    "node",
+    "traffict",
+    "light",
+    "smart"
+  ],
+  "author": "Louis Nguyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/huutho321/STL-Project/issues"
+  },
+  "homepage": "https://gitlab.com/huutho321/STL-Project#README"
+}

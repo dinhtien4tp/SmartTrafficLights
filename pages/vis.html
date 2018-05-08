@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="stl">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Smart Traffic Light</title>
+
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/node_modules/angular-toastr/dist/angular-toastr.min.css">
+    <!-- Custom CSS -->
+    <link href="/public/css/style.css" rel="stylesheet">
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top" ng-controller="main-controller"  ng-init="condition = 1;">
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">STL</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav pull-right">
+                    <li>
+                        <a ng-click="view_vis(); condition = 1;" onclick="return false">View Vis</a>
+                    </li>
+                    <li>
+                        <a ng-click="condition = 0;" onclick="return false">View Gmap</a>
+                    </li>
+                    <li>
+                        <a ng-click="fit();" onclick="return false">FIT</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Contact Section -->
+    <section id="main" class="main-section" ng-class="add_node ? 'cursor' : ''">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-9">
+                    <style type="text/css">
+                        .z_3 {
+                            z-index: 3;
+                        }
+                        .z_2 {
+                            z-index: 2;
+                        }
+                        .z_1 {
+                            z-index: 1;
+                        }
+                    </style>
+                    <div id="cy" ng-class="condition == 1 ? 'z_2' : 'z_1'">
+                        
+                    </div>
+                    <div id="map" ng-class="{'z_2': condition == 0, 'z_1' : condition == 1}">
+
+                    </div>
+                    <div class="add-btn" ng-class="{'z_2': condition == 0, 'z_1' : condition == 1}" ng-init="start = true">
+                        <a class="btn btn-primary" ng-click="start_add ()" ng-class="start == false ? 'hide' : ''">Add node</a>
+                        <a class="btn btn-danger" ng-click="add_complete ()" ng-class="start == true ? 'hide' : ''">Complete</a>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <table style="margin: 0 auto">
+                        <thead>
+                            <tr>
+                                <td width="200px"><strong>Name</strong></td>
+                                <td width="50px"><strong>Status</strong></td>
+                                <td style="text-align: center;"><strong>Time</strong></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="node in nodes  track by $index" ng-if="connecteds[node._id].connected == true" style="height: 30px; border-top: 1px solid #eee">
+                                <td>{{ node.name }} ( {{ node.code }} )</td>
+                                <td class="status" ng-class="{'red': connecteds[idx].data.color == 0, 'yellow': connecteds[idx].data.color == 2, 'green': connecteds[idx].data.color == 1}"><span></span></td>
+                                <td style="text-align: center;"><strong>{{ connecteds[idx].data.time }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="node_option" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Node Control</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <button class="btn btn-primary btn-block btn-flat" ng-click="view_image()">View Image</button>
+                            <button class="btn btn-primary btn-block btn-flat" data-dismiss="modal" ng-click="condition = 0; select_relation()">Select relation</button>
+                            <button ng-if="connecteds[current_node].connected" class="btn btn-primary btn-block btn-flat" ng-click="set_time()">Set Time</button>
+                            <br>
+                            <hr>
+                            <p ng-if="!connecteds[current_node].connected"><img src="/public/image/loading.gif" style="margin-left: calc(50% - 20px)" width="40px"></p>
+                            <p ng-if="connecteds[current_node].connected"><img src="/public/image/connected.png" style="margin-left: calc(50% - 20px)" width="40px"></p>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="row">
+                                <table class="table table-user-information">
+                                    <tbody>
+                                        <tr>
+                                            <td>Name: </td>
+                                            <td><input ng-model="nodes[current_node].name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Code: </td>
+                                            <td><input ng-model="nodes[current_node].code"/></td>
+                                        </tr>
+                                        <!--<tr>
+                                            <td>Capacity: </td>
+                                            <td><input ng-model="nodes[current_node].capacity"/></td>
+                                        </tr> -->
+                                        <tr>
+                                            <td>Address: </td>
+                                            <td><input ng-model="nodes[current_node].address"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>_ID: </td>
+                                            <td><input ng-model="nodes[current_node]._id"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <td><button class="btn btn-flat btn-default" data-dismiss="modal"> Cancle </button></td>
+                            <td><button class="btn btn-danger btn-flat pull-right" data-dismiss="modal" ng-click="delete_node()">Delete node</button></td>
+                            <td><button class="btn btn-flat btn-primary pull-right" data-dismiss="modal" ng-click="save_node(current_node)"> Save </button></td>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jQuery -->
+    <script src="/node_modules/jquery/dist/jquery.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- Angular -->
+    <script src="/node_modules/angular/angular.js"></script>
+    <script src="/node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="/node_modules/angular-toastr/dist/angular-toastr.min.js"></script>
+    <script src="/node_modules/angular-animate/angular-animate.min.js"></script>
+    <!-- Socket io -->
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script src="/public/js/cytoscape.min.js"></script>
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyA6C9wzdETDd9jKrX7QLMMnFLw_germchs&sensor=false&libraries=geometry"></script>
+    <script src="/public/js/google.js"></script>
+    <script src="/public/js/cy.js"></script>
+    <script src="/public/js/main.js"></script>
+</html>
