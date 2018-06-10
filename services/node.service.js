@@ -42,7 +42,7 @@ function create(node) {
             if (err) {
                 deferred.reject(err.name + ': ' + err.message);
             }
-            deferred.resolve();
+            deferred.resolve(doc);
         }
     );
     return deferred.promise;
@@ -51,10 +51,14 @@ function create(node) {
 function update(_id, node) {
     var deferred = Q.defer();
     node = _.omit(node, ["_id", "$$hashKey", "idx", "vehicle"]);
-    for (var i = 0; i < node.relation.length; i++) {
-        if(node.relation[i].speed == 0) {
-            node.relation[i].speed = 400 * 1000;
+    if (node.relation) {
+        for (var i = 0; i < node.relation.length; i++) {
+            if(node.relation[i].speed == 0) {
+                node.relation[i].speed = 400 * 1000;
+            }
         }
+    } else {
+        node.relation = [];
     }
     
     db.nodes.update({_id: mongo.helper.toObjectID(_id)}, node,

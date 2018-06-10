@@ -21,6 +21,7 @@ function GoogleMaps(toastr) {
 		node_select = _id;
 	}
 	this.set_select = function(b, $scope) {
+		console.log(b);
 		select = b;
 		$scope.nodes[node_select].saved = false;
 		for (var i in $scope.nodes){
@@ -38,7 +39,7 @@ function GoogleMaps(toastr) {
 					if (j === $scope.nodes[node_select].relation.length) {
 						markers[i].setIcon(icons.not_friend);
 					}
-					if (!$scope.nodes[i].tempdata.saved) {
+					if (!$scope.nodes[i].saved) {
 						markers[i].setIcon(icons.unsaved);
 					}
 				}
@@ -50,7 +51,7 @@ function GoogleMaps(toastr) {
 	this.un_select = function ($scope) {
 		for (var _id in $scope.nodes){
 			markers[_id].setDraggable(true);
-			if ($scope.nodes[_id].tempdata.saved) {
+			if ($scope.nodes[_id].saved) {
 				markers[_id].setIcon(icons.saved);
 			} else {
 				markers[_id].setIcon(icons.unsaved);
@@ -68,6 +69,7 @@ function GoogleMaps(toastr) {
 			directionsDisplay.setMap(null);
 		}
 	}
+	
 	this.__init = function () {
 		if (map === null) {
 		    var myLatLng = {lat: 21.037528, lng: 105.836028};
@@ -109,18 +111,15 @@ function GoogleMaps(toastr) {
 	    map.fitBounds(bounds);
 	}
 	this.update_node = function(data) {
-
-		if (markers[data.tempdata.idx]) {
+		if (markers[data._id]) {
 			var latlng = new google.maps.LatLng(data.position.x, data.position.y);
-			markers[data.tempdata.idx].setPosition(latlng);
-			if (data.tempdata.saved) {
-				markers[data.tempdata.idx].setIcon(icons.saved);
+			markers[data._id].setPosition(latlng);
+			if (data.saved) {
+				markers[data._id].setIcon(icons.saved);
 			} else {
-				markers[data.tempdata.idx].setIcon(icons.unsaved);
+				markers[data._id].setIcon(icons.unsaved);
 			}
-			markers[data.tempdata.idx].setTitle(data.name);
-
-			markers[data.tempdata.idx].idx = data.tempdata.idx;
+			markers[data._id].setTitle(data.name);
 		}
 	}
 
@@ -135,7 +134,7 @@ function GoogleMaps(toastr) {
             draggable: true,
             idx: i,
         };
-        if ($scope.nodes[i].tempdata.saved){
+        if ($scope.nodes[i].tempdata == undefined || $scope.nodes[i].saved){
         	config.icon = icons.saved;
         }
         else {
@@ -149,7 +148,7 @@ function GoogleMaps(toastr) {
             	if (select == true) {
             		return;
             	}
-            	$scope.nodes[marker.idx].tempdata.saved = false;
+            	$scope.nodes[marker.idx].saved = false;
                 markers[marker.idx].setIcon(icons.unsaved);
 
                 var lat, lng, address;
@@ -165,7 +164,7 @@ function GoogleMaps(toastr) {
             });
             google.maps.event.addListener(marker, 'click', function() {
             	if (select == false) {	
-	            	if($scope.nodes[marker.idx].tempdata.saved == true) {
+	            	if($scope.nodes[marker.idx].saved == true) {
 	            		$scope.node_option(marker.idx);
 	            		node_select = marker.idx;
 	            	} else {
@@ -173,14 +172,15 @@ function GoogleMaps(toastr) {
 	            	}
 	            } else {
 	            	try {
-		            	var idx = 0; 
+						var idx = 0; 
+						console.log(marker.idx);
 		            	if (marker.idx == node_select) {
 		            		$scope.save_node(marker.idx);
 		            		directionsDisplay.setMap(null);
 		            		un_select_func($scope);
 		            		return;
 		            	}
-		            	if ($scope.nodes[marker.idx].tempdata.saved == false) {
+		            	if ($scope.nodes[marker.idx].saved == false) {
 	            			toastr.error("Its not save", "Error");
 	            			return;
 						}

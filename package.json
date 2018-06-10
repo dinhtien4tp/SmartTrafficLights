@@ -1,46 +1,33 @@
 {
-  "name": "smart-traffic-light",
-  "version": "1.0.0",
-  "description": "He thong tin hieu giao thong thong minh",
-  "main": "server.js",
-  "dependencies": {
-    "angular": "^1.6.3",
-    "angular-animate": "^1.6.4",
-    "angular-toastr": "^2.1.1",
-    "angular-ui-router": "^0.4.2",
-    "bootstrap": "^3.3.7",
-    "express": "^4.15.2",
-    "jquery": "^3.2.1",
-    "lodash": "^4.17.4",
-    "mongodb": "^2.2.25",
-    "mongoskin": "^2.1.0",
-    "optimist": "^0.6.1",
-    "q": "^1.5.0",
-    "socket.io": "1.5.0",
-    "websocket.io": "latest"
-  },
-  "devDependencies": {
-    "file-loader": "^0.10.1",
-    "webpack-dev-server": "^1.8.0"
-  },
-  "scripts": {
-    "test": "node server.js",
-    "start": "node server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://huutho321@gitlab.com/huutho321/STL-Project.git"
-  },
-  "keywords": [
-    "node",
-    "traffict",
-    "light",
-    "smart"
-  ],
-  "author": "Louis Nguyen",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://gitlab.com/huutho321/STL-Project/issues"
-  },
-  "homepage": "https://gitlab.com/huutho321/STL-Project#README"
+    "name": "mean-stack-registration-login-example",
+    "version": "1.0.0",
+    "description": "MEAN Stack User Registration and Login Example Application",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cornflourblue/mean-stack-registration-login-example.git"
+    },
+    "dependencies": {
+        "angular": "^1.6.3",
+        "angular-animate": "^1.6.4",
+        "angular-toastr": "^2.1.1",
+        "angular-ui-router": "^0.4.2",
+        "bcryptjs": "^2.1.0",
+        "body-parser": "^1.13.2",
+        "bootstrap": "^3.3.7",
+        "ejs": "^2.3.3",
+        "express": "^4.13.0",
+        "express-jwt": "^3.0.1",
+        "express-session": "^1.11.3",
+        "jsonwebtoken": "^5.0.2",
+        "jquery": "^3.2.1",
+        "lodash": "^3.10.0",
+        "mongodb": "^2.1.16",
+        "mongoskin": "^2.1.0",
+        "q": "^1.4.1",
+        "request": "^2.58.0",
+        "rootpath": "^0.1.2",
+        "socket.io": "1.5.0",
+        "underscore": "^1.9.1"
+    },
+    "license": "MIT"
 }

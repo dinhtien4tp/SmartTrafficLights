@@ -65,7 +65,6 @@ function Cy() {
 				    data: { id: 'n' + idx, name: $scope.nodes[idx].code,  fave_color: color.disconnect, idx: idx },
 				    position: this.__get_vis_position($scope.nodes[idx].position)
 				}).on("click", function() {
-					console.log("add_node event click", this);
 					$scope.node_option(idx);
 				});
 			}
@@ -90,14 +89,12 @@ function Cy() {
 		if (b) {
 			obj.css({'background-color': color.connect, 'text-outline-color': color.connect});
 		} else {
-			console.log("dasjkhdjksadask hdkjas", obj);
 			obj.css({'background-color': color.disconnect, 'text-outline-color': color.disconnect});
 		}
 	}
 
 	this.add_edge = function($scope, from, to, edge_data) {
 		cy.startBatch();
-
 		var data = {
 			id: "e" + from + "_" + to,
 			source: "n" + from,
@@ -127,36 +124,39 @@ function Cy() {
 		cy.startBatch();
 
 		cy.remove(cy.$("[id^='e" + idx + "']"));
-		for (var i = 0; i < $scope.nodes[idx].relation.length; i++) {
-			this.add_edge($scope, idx, $scope.nodes[idx].relation[i].idx, $scope.nodes[idx].relation[i]);
+		if (Object.keys($scope.nodes[idx].relation)) {
+			for (var i = 0; i < $scope.nodes[idx].relation.length; i++) {
+				console.log($scope.nodes[idx].relation[i]);
+				this.add_edge($scope, idx, $scope.nodes[idx].relation[i].idx, $scope.nodes[idx].relation[i]);
+			}
 		}
 		cy.endBatch();
 	}
-	this.update_vehicle = function (edges) {
-
-		for (var i = 0; i < edges.length; i++) {
-			cy.$("#e" + edges[i].from + "_" + edges[i].to).data({label: edges[i].vehicle});
-		}
-		console.log("s");
+	this.update_vehicle = function (from, to, data) {
+		cy.$("#e" + from + "_" + to).data({label: data});
 	}
 
 	this.initialize = function($scope, toastr) {
-		if ($scope.nodes === null)
+		if ($scope.nodes === null || Object.keys($scope.nodes).length == 0)
 			return;
 
 		cy.startBatch();
 		cy.remove('*');
-		for (var i = 0; i < $scope.nodes.length; i++){
+		for (var i in $scope.nodes){
 			this.create_node($scope, i);
 		}
-		for (var i = 0; i < $scope.nodes.length; i++){
-			for (var j = 0; j < $scope.nodes[i].relation.length; j++){
-				this.add_edge($scope, i, $scope.nodes[i].relation[j].idx, $scope.nodes[i].relation[j]);
+		for (var i in $scope.nodes){
+			if (Array.isArray($scope.nodes[i].relation)) {
+				for (var j = 0; j < $scope.nodes[i].relation.length; j++){
+					this.add_edge($scope, i, $scope.nodes[i].relation[j].idx, $scope.nodes[i].relation[j]);
+				}
 			}
 		}
-		for (var i = 0; i < $scope.devices.length; i++){
-			this.node_connect($scope.devices[i], true);
-			toastr.info("Node " + $scope.nodes[$scope.devices[i]].name + " is connected", "Info");
+		for (var i in $scope.devices){
+			if ($scope.devices[i] == true) {
+				this.node_connect(i, true);
+				toastr.info("Node " + $scope.nodes[i].name + " is connected", "Info");
+			}
 		}
 		cy.endBatch();
 	}

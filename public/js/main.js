@@ -27,7 +27,10 @@ app.factory('socket', function ($rootScope) {
 app.config(function(toastrConfig) {
   	angular.extend(toastrConfig, {
 	    autoDismiss: true,
-	    positionClass: 'toast-bottom-right',
+		positionClass: 'toast-bottom-right',
+		templates: {
+			toast: '/directives/toast/toast.html'
+		}
   	});
 });
 
@@ -71,38 +74,30 @@ app.controller('main-controller', function($scope, $timeout, socket, toastr) {
 			name: "",
 			code: "",
 			capacity: 0,
-			tempdata: {
-				saved: false,
-			}
+			saved: true
 		}
-		$scope.nodes[(new Date()).getTime()] = node;
-		gmap.create_node ($scope, idx);
-	}
-	$scope.save_node = function (idx) {
-		t = idx;
-		if ($scope.nodes[idx]._id === undefined) {
-			if (idx == 0) {
-				idxs.push(idx);
+		socket.emit("save-node", node, function (data) {
+			if (data.status == 1) {
+				node._id = data._id;
+				$scope.nodes[data._id] = node;
+				gmap.create_node ($scope, data._id);
 			} else {
-				if ($scope.nodes[idx - 1]._id === undefined) {
-					while ($scope.nodes[t - 1]._id === undefined) t--;
-					// swap all data
-					temp = $scope.nodes[t];
-					$scope.nodes[t] = $scope.nodes[idx];
-					$scope.nodes[idx] = temp;
-					// update idx
-					$scope.nodes[idx]._id = idx;
-					$scope.nodes[t]._id = t;
-					// update marker
-					gmap.update_node($scope.nodes[idx]);
-					gmap.update_node($scope.nodes[t]);
-					// push t to waitting saved
-					idxs.push(t);
-				} else {
-					idxs.push(idx);
-				}
+				toastr.error("Error", "Error");
 			}
-		}
+		})
+	}
+
+	$scope.save_node = function (idx) {
+		$scope.nodes[idx].saved = true;
+		socket.emit("save-node", $scope.nodes[idx], function (data) {
+			if (data.status == 1) {
+				gmap.update_node($scope.nodes[idx]);
+				toastr.success("Update completed", "Successful");
+			} else {
+				$scope.nodes[idx].saved = false;
+				toastr.error("Update data error", "Error");
+			}
+		})
 	}
 	$scope.node_option = function(idx) {
 		gmap.set_node(idx);
@@ -154,83 +149,49 @@ app.controller('main-controller', function($scope, $timeout, socket, toastr) {
 		green = prompt ("GREEN", 15);
 		if (red == null || green == null)
 			return;
-		socket.emit("update time", {node_id: $scope.current_node, time: (red + "#" + green)});
-		console.log("settime");
+
+		socket.emit("update time", {_id: $scope.current_node, time: {red: red, green: green}});
 	}
 
 	socket.on("receive-data", function (data, callback) {
-
 		$scope.nodes = data.nodes;
 		$scope.devices = data.devices;
-		toastr.success("Receive " + data.nodes.length + " nodes", "Successful");
-
 		for (var e in $scope.nodes) {
-			gmap.update_map($scope);
-			cy.initialize($scope, toastr);
+			if ($scope.nodes[e].tempdata == undefined) {
+				$scope.nodes[e].tempdata = {};
+			}
 		}
+		toastr.success("Receive " + Object.keys(data.nodes).length + " nodes", "Successful");
+
+		gmap.update_map($scope);
+		cy.initialize($scope, toastr);
 		
 		for (var e in $scope.devices){
-			$scope.connecteds[$scope.devices[e]] = {};
-			$scope.connecteds[$scope.devices[e]].connected = true;
+			if ($scope.devices[e]) {
+				$scope.connecteds[e] = {};
+				$scope.connecteds[e].connected = true;
+			}
 		}
 
-		toastr.success(data.devices.length + " nodes is connected", "Successful");
+		toastr.success(Object.keys(data.devices).length + " nodes is connected", "Successful");
 		toastr.success("Initialize completed", "Successful");
 		
 		callback({msg: "OKE"});
 	});
 	
-	socket.on("update node", function (node) {
-		idx = idxs.indexOf(node._id);
-
-		if (idx >= 0) {
-			$scope.nodes[node._id] = node;
-			gmap.update_node($scope.nodes[node._id]);
-			cy.create_node($scope, node._id);
-
-			idxs.splice(idx, 1);
-			toastr.success("Add node completed", "Successful");
-		} else {
-			if ($scope.nodes[node._id] !== undefined && $scope.nodes[node._id]._id !== undefined) {
-				// node add by current user
-				$scope.nodes[node._id] = node;
-				gmap.update_node($scope.nodes[node._id]);
-				cy.update_node($scope, node._id);
-				toastr.warning("Node " + node.name + " update", "Warning");
-			} else {
-				if ($scope.nodes[node._id] === undefined) {
-					$scope.nodes[node._id] = node;
-					gmap.create_node($scope, node._id);
-					cy.create_node($scope, node._id);
-				} else {
-					// move node had the same idx to the end of array
-					$scope.nodes[node._id]._id = $scope.nodes.length;
-					$scope.nodes.push($scope.nodes[node._id]);
-					gmap.create_node($scope, $scope.nodes[node._id]._id);
-					cy.create_node($scope, $scope.nodes[node._id]._id);
-					// update node had the same idx
-					$scope.nodes[node._id] = node;
-					gmap.update_node($scope.nodes[node._id]);
-					cy.create_node($scope, node._id);
-				}
-				toastr.info("Add new node by another user", "Info");
-			}
-		}
-	});
 	
 	socket.on("device connected", function(data) {
-		console.log(data, $scope.nodes[data.idx]);
 		if (data.status) {
 			toastr.info("Node " + $scope.nodes[data.idx].name + " is connected", "Info");
 			cy.node_connect(data.idx, true);
-			$scope.devices.push(data.idx);
+			$scope.devices[data.idx] = true;
 
 			$scope.connecteds[data.idx] = {};
 			$scope.connecteds[data.idx].connected = true;
 		} else {
 			toastr.warning("Node " + $scope.nodes[data.idx].name + " is disconnected", "Warning");
 			cy.node_connect(data.idx, false);
-			$scope.devices.splice($scope.devices.indexOf(data.idx));
+			$scope.devices[data.idx] = false;
 			$scope.connecteds[data.idx].connected = false;
 		}
 	});
@@ -242,8 +203,18 @@ app.controller('main-controller', function($scope, $timeout, socket, toastr) {
 
 	});
 
-	socket.on("update vehicle", function (edges) {
-		cy.update_vehicle(edges);
+	socket.on("update node data", function (nodeData) {
+		if ($scope.connecteds[nodeData.idx]) {
+			$scope.connecteds[nodeData.idx].data = {
+				color: nodeData.data.color,
+				time: nodeData.data.time
+			}
+			console.log(nodeData.data.color, nodeData.data.time, nodeData.data.vehicle);
+			var vehicle = nodeData.data.vehicle;
+			for (var to in vehicle) {
+				cy.update_vehicle(to, nodeData.idx, vehicle[to]);
+			}
+		}
 	});
 
 	angular.element(document).ready(function() {

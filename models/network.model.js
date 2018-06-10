@@ -1,5 +1,11 @@
 var nodeService = require('../services/node.service');
 var Node = require("./node.model");
+var ObjectId = require('mongodb').ObjectID;
+
+var CONST = {
+    OK: 1,
+    ERR: 0
+}
 
 function Network (io) {
     this.network = {};
@@ -26,23 +32,35 @@ function Network (io) {
                     socket.emit("receive-data", {nodes: that.nodes, devices: that.devices}, function () {
 
                     });
+
                     socket.on("save-node", function (nodeData, fn) {
                         if (nodeData._id === undefined){
-                            let _id = nodeData._id.toString();
                             nodeData._id = new ObjectId();
+                            let _id = nodeData._id.toString();
                             that.network[_id] = new Node(_id, that);
-                        } else {
-                            nodeService.update(nodeData._id, nodeData)
+                            that.network[_id].storeData(nodeData)
                                 .then(function (data) {
-                                    that.network[nodeData._id.toString()].updateData(nodeData);
+                                    fn({status: CONST.OK, _id: _id});
                                 })
                                 .catch(function (Err) {
                                     console.log(Err);
+                                    fn({status: CONST.ERR});
+                                })
+                        } else {
+                            that.network[nodeData._id.toString()].updateData(nodeData)
+                                .then(function (data) {
+                                    fn({status: CONST.OK});
+                                })
+                                .catch(function (Err) {
+                                    console.log(Err);
+                                    fn({status: CONST.ERR});
                                 })
                         }
-                        fn({status: true});
-                        socket.emit("update node", nodeData);
                     });
+
+                    socket.on("update time", function (data) {
+                        that.network[data._id.toString()].setTime(data.time);
+                    })
                 });
 
                 io.of("/node").on('connection', function(socket, next) {
@@ -50,6 +68,10 @@ function Network (io) {
                         that.network[data._id].setSocket(socket, fn);
                     })
                 });
+
+                // setInterval(() => {
+                //     "update vehicle"
+                // }, 1000);
             })
             .catch(function (err) {
                 console.log(err);
@@ -63,6 +85,14 @@ function Network (io) {
 
     this.nodeDisconnect = function (_id) {
         io.of("/admin").emit("device connected", {idx: _id, status: false});
+    }
+    this.updateVehicle = function (from, data) {
+        for (var _id in data) {
+            that.network[_id].newVehicle(from, data[_id]);
+        }
+    }
+    this.updateToAdmin = function (_id, data) {
+        io.of("/admin").emit("update node data", {idx: _id, data: data});
     }
 }
 

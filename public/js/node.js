@@ -39,20 +39,49 @@ app.controller('main-controller', function($scope, socket) {
 	
 	$scope.connect = function () {
 		socket.emit("init-node", {_id: $scope.node._id}, function (data) {
-			console.log(data);
+			$scope.node = data;
 		});
+		socket.on("set time", function (data) {
+			arr[0] = data.red || 15;
+			arr[1] = data.green || 15;
+		})
+		socket.on("set next time", function (data) {
+			if ($scope.color == 0) {
+				arr[1] = data.time - 3;
+			} else if ($scope.color == 2) {
+				arr[0] = data.time;
+			}
+		})
 	}
-
+	
 	angular.element(document).ready(function() {
 		$scope.time = arr[0];
-
+		$scope.color = 0;
+		
 		setInterval(function() {
 			$scope.time--;
-			socket.emit("update-vehicle", {dsa: "djksah dsjka"});
-			if ($scope.time < 0){
+			if ($scope.time <= 0){
 				$scope.color = ($scope.color + 1) % 3;
-				$scope.time = arr[$scope.color]; 
+				$scope.time = arr[$scope.color];
 			}
+			let vehicle = {};
+			for (var e in $scope.node.relation) {
+				if ($scope.color == 0) {
+					if (e % 2 == 0) {
+						vehicle[$scope.node.relation[e].idx] = random(0, 10);
+					} else {
+						vehicle[$scope.node.relation[e].idx] = 0;
+					}
+				} else {
+					if (e % 2 == 1) {
+						vehicle[$scope.node.relation[e].idx] = random(0, 10);
+					} else {
+						vehicle[$scope.node.relation[e].idx] = 0;
+					}
+				}
+			}
+			
+			socket.emit("update-vehicle", {vehicle: vehicle, time: $scope.time, color: $scope.color});
 			$scope.$apply();
 		}, 1000);
 
